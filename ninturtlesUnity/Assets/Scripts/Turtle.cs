@@ -28,12 +28,24 @@ public class Turtle: MonoBehaviour
     public bool Zombified;
     public int Educaton;
 
+    public int Hunger;
+    public int Thirst;
+    public bool IsWandering;
+    public bool StickOut;
+
+    public GameObject FoodBowl;
+
     public Turtle P1;
     public Turtle P2;
 
     public void Start()
     {
         if (P1 != null && P2 != null) TurtleFromParents(P1, P2); else RandomTurtle();
+    }
+
+    public void FixedUpdate()
+    {
+        TurtleThink();
     }
 
     public void RandomTurtle() {
@@ -47,6 +59,8 @@ public class Turtle: MonoBehaviour
         Swimming = Random.Range(0, 100);
         Zombified = Random.Range(0f, 1f) > 0.5;
         Educaton = Random.Range(0, 100);
+        Hunger = 100;
+        Thirst = 100; 
     }
 
     public void TurtleFromParents(Turtle Frank, Turtle Derek)
@@ -64,5 +78,44 @@ public class Turtle: MonoBehaviour
         Swimming = Random.Range(Frank.Swimming, Derek.Swimming) + Random.Range(-25, 25);
         Zombified = Random.Range(0f, 1f) > 0.5 ? Frank.Zombified : Derek.Zombified;
         Educaton = Random.Range(Frank.Educaton, Derek.Educaton) + Random.Range(-25, 25);
+        Hunger = 100;
+        Thirst = 100;
+    }
+
+    public void TurtleThink()
+    {
+        switch((Hunger, Thirst, StickOut))
+        {
+            case ( <= 10, _, _):
+                GoToFood();
+                break;
+            case (_, <= 20, _):
+                // go drink
+                break;
+            case (_, _, true):
+                // go to stick
+                break;
+            default:
+                // wonder
+                break;
+        }
+    }
+
+    public void GoToFood()
+    {
+        Transform FoodBowlTransform = FoodBowl.transform;
+
+        var LookPos = FoodBowlTransform.position - transform.position;
+
+        Turn();
+
+        void Turn()
+        {
+            LookPos.y = 0;
+            var rotation = Quaternion.LookRotation(LookPos);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 1);
+        }
+
+        transform.position += Vector3.forward * Time.deltaTime * 2f;
     }
 }

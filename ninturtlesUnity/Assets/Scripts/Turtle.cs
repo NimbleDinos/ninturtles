@@ -40,6 +40,7 @@ public class Turtle: MonoBehaviour
 
     public GameObject FoodBowl;
     public GameObject Pond;
+    public GameObject Player;
 
     public Turtle P1;
     public Turtle P2;
@@ -128,7 +129,7 @@ public class Turtle: MonoBehaviour
 
     public void TurtleThink()
     {
-        switch((Hunger, AtFood, Thirst, AtPond,  StickOut))
+        switch((Hunger, AtFood, Thirst, AtPond, StickOut))
         {
             case ( <= 10, _, _, _, _):
                 GoToFood();
@@ -149,7 +150,7 @@ public class Turtle: MonoBehaviour
                 AtPond = false;
                 break;
             case (_, _, _, _, true):
-                // go to stick
+                GoToPlayer();
                 break;
             default:
                 Wander();
@@ -168,7 +169,6 @@ public class Turtle: MonoBehaviour
             if (Hunger <= 100f)
             {
                 Hunger += Time.deltaTime * 2.5f;
-                Debug.Log(Hunger);
             }else
             {
                 AtFood = false;
@@ -188,13 +188,19 @@ public class Turtle: MonoBehaviour
             if (Thirst <= 100f)
             {
                 Thirst += Time.deltaTime * 2.5f;
-                Debug.Log(Hunger);
             }
             else
             {
                 AtPond = false;
             }
         }
+    }
+
+    public void GoToPlayer()
+    {
+        Debug.Log("PLAYER TIME");
+        TurnToPosition(Player.transform.position);
+        transform.position += transform.forward * Time.deltaTime * 0.5f;
     }
 
     public void TurnToPosition(Vector3? AimPosition)
@@ -208,7 +214,6 @@ public class Turtle: MonoBehaviour
 
     public void Wander()
     {
-        Debug.Log(WanderPosition);
         if (WanderPosition != null)
         {
             TurnToPosition(WanderPosition);
@@ -235,5 +240,10 @@ public class Turtle: MonoBehaviour
         {
             AtPond = true;
         }
+    }
+
+    public void SetStickOut(bool stick)
+    {
+        StickOut = stick;
     }
 }

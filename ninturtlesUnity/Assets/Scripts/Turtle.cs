@@ -28,12 +28,34 @@ public class Turtle: MonoBehaviour
     public bool Zombified;
     public int Educaton;
 
+    public float Hunger;
+    public bool AtFood = false;
+    public float Thirst;
+    public bool IsWandering;
+    public bool StickOut;
+
+    public GameObject FoodBowl;
+
     public Turtle P1;
     public Turtle P2;
+
+    public Vector3? WanderPosition;
 
     public void Start()
     {
         if (P1 != null && P2 != null) TurtleFromParents(P1, P2); else RandomTurtle();
+    }
+
+    public void FixedUpdate()
+    {
+        TurtleThink();
+        DecreaseStats();
+    }
+
+    public void DecreaseStats()
+    {
+        Hunger += Time.deltaTime * -0.1f;
+        Thirst += Time.deltaTime * -0.1f;
     }
 
     public void RandomTurtle() {
@@ -47,6 +69,8 @@ public class Turtle: MonoBehaviour
         Swimming = Random.Range(0, 100);
         Zombified = Random.Range(0f, 1f) > 0.5;
         Educaton = Random.Range(0, 100);
+        Hunger = 100f;
+        Thirst = 100f; 
     }
 
     public void TurtleFromParents(Turtle Frank, Turtle Derek)
@@ -64,5 +88,88 @@ public class Turtle: MonoBehaviour
         Swimming = Random.Range(Frank.Swimming, Derek.Swimming) + Random.Range(-25, 25);
         Zombified = Random.Range(0f, 1f) > 0.5 ? Frank.Zombified : Derek.Zombified;
         Educaton = Random.Range(Frank.Educaton, Derek.Educaton) + Random.Range(-25, 25);
+        Hunger = 100f;
+        Thirst = 100f;
+    }
+
+    public void TurtleThink()
+    {
+        switch((Hunger, AtFood, Thirst, StickOut))
+        {
+            case ( <= 10, _, _, _):
+                GoToFood();
+                break;
+            case ( <= 100, true, _, _):
+                Hunger += Time.deltaTime * 2.5f;
+                break;
+            case ( >= 100, true, _, _):
+                AtFood = false;
+                break;
+            case (_, _, <= 20, _):
+                // go drink
+                break;
+            case (_, _, _, true):
+                // go to stick
+                break;
+            default:
+                Wander();
+                break;
+        }
+    }
+
+    public void GoToFood()
+    {
+        if (!AtFood)
+        {
+            TurnToPosition(FoodBowl.transform.position);
+            transform.position += transform.forward * Time.deltaTime * 0.5f;
+        } else
+        {
+            if (Hunger <= 100f)
+            {
+                Hunger += Time.deltaTime * 2.5f;
+                Debug.Log(Hunger);
+            }else
+            {
+                AtFood = false;
+            }
+        }
+    }
+
+    public void TurnToPosition(Vector3? AimPosition)
+    {
+        var LookPos = AimPosition.Value - transform.position;
+
+        LookPos.y = 0;
+        var rotation = Quaternion.LookRotation(LookPos);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 0.2f);
+    }
+
+    public void Wander()
+    {
+        Debug.Log(WanderPosition);
+        if (WanderPosition != null)
+        {
+            TurnToPosition(WanderPosition);
+            if (Vector3.Distance(transform.position, WanderPosition.Value) < 1)
+            {
+                WanderPosition = null;
+            } else
+            {
+                transform.position += transform.forward * Time.deltaTime * 0.5f;
+            }
+        } else
+        {
+            Vector3 pos = new Vector3(Random.Range(0, 50), transform.position.y, Random.Range(0, 40));
+            WanderPosition = pos;
+        }
+    }
+
+    public void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "food")
+        {
+            AtFood = true;
+        }
     }
 }

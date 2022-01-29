@@ -17,7 +17,9 @@ public class Turtle: MonoBehaviour
         }
     }
 
+    public bool CheeseOut;
     public bool LikesCheese;
+    public List<GameObject> Cheeses;
     public bool IsDumb;
     public Colour TurtleColour;
     public int Cannibalism;
@@ -129,27 +131,30 @@ public class Turtle: MonoBehaviour
 
     public void TurtleThink()
     {
-        switch((Hunger, AtFood, Thirst, AtPond, StickOut))
+        switch((Hunger, AtFood, Thirst, AtPond, CheeseOut, StickOut))
         {
-            case ( <= 10, _, _, _, _):
+            case ( <= 10, _, _, _, _, _):
                 GoToFood();
                 break;
-            case ( <= 100, true, _, _, _):
+            case ( <= 100, true, _, _, _, _):
                 Hunger += Time.deltaTime * 2.5f;
                 break;
-            case ( >= 100, true, _, _, _):
+            case ( >= 100, true, _, _, _, _):
                 AtFood = false;
                 break;
-            case (_, _, <= 20, _, _):
+            case (_, _, <= 20, _, _, _):
                 GoToDrink();
                 break;
-            case (_, _, <= 100, true, _):
+            case (_, _, <= 100, true, _, _):
                 Thirst += Time.deltaTime * 2.5f;
                 break;
-            case (_, _, >= 100, _, _):
+            case (_, _, >= 100, _, _, _):
                 AtPond = false;
                 break;
-            case (_, _, _, _, true):
+            case (_, _, _, _, true, _):
+                CheeseTime();
+                break;
+            case (_, _, _, _, _, true):
                 GoToPlayer();
                 break;
             default:
@@ -210,6 +215,19 @@ public class Turtle: MonoBehaviour
         LookPos.y = 0;
         var rotation = Quaternion.LookRotation(LookPos);
         transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 0.2f);
+    }
+
+    public void CheeseTime()
+    {
+        if (LikesCheese)
+        {
+            GameObject cheese = Cheeses[0];
+            TurnToPosition(cheese.transform.position);
+            transform.position += transform.forward * Time.deltaTime * 0.5f;
+        } else
+        {
+            Wander();
+        }
     }
 
     public void Wander()

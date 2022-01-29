@@ -2,13 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PickUp : MonoBehaviour
+public class PlayerLogic : MonoBehaviour
 {
     public Camera cam;
     public bool HoldingItem;
     public Transform Destination;
     public GameObject Stick;
     public List<Turtle> turtles;
+
+    public GameObject CheesePrefab;
+
+    public List<GameObject> Cheeses = new();
 
     public void Update()
     {
@@ -45,6 +49,20 @@ public class PickUp : MonoBehaviour
 
                 turtles.ForEach(turtle => turtle.SetStickOut(false));
             }
+        }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            Debug.Log("Cheese time");
+            GameObject cheese = Instantiate(CheesePrefab);
+            Cheeses.Add(cheese);
+            cheese.transform.position = transform.position;
+            cheese.GetComponent<Rigidbody>().AddForce(cam.transform.forward * Random.Range(0.5f, 2f), ForceMode.Impulse);
+
+            turtles.ForEach(turtle => { 
+                turtle.Cheeses = Cheeses;
+                turtle.CheeseOut = true;
+            }) ;
         }
     }
 }

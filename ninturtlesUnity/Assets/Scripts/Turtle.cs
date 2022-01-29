@@ -31,10 +31,15 @@ public class Turtle: MonoBehaviour
     public float Hunger;
     public bool AtFood = false;
     public float Thirst;
+    public bool AtPond = false;
     public bool IsWandering;
     public bool StickOut;
 
+    public float Happiness;
+    public bool Breedable;
+
     public GameObject FoodBowl;
+    public GameObject Pond;
 
     public Turtle P1;
     public Turtle P2;
@@ -54,8 +59,35 @@ public class Turtle: MonoBehaviour
 
     public void DecreaseStats()
     {
-        Hunger += Time.deltaTime * -0.1f;
-        Thirst += Time.deltaTime * -0.1f;
+        Hunger += Hunger >= 0 ? Time.deltaTime * -0.05f : 0;
+        Thirst += Thirst >= 0 ? Time.deltaTime * -0.05f : 0;
+
+        CalculateHappiness();
+    }
+
+    public void CalculateHappiness()
+    {
+        switch (Hunger,  Thirst)
+        {
+            case ( < 25, < 25):
+                Happiness += Happiness >= -100 ? Time.deltaTime * -0.3f : 0;
+                break;
+            case ( < 25, _):
+                Happiness += Happiness >= -100 ? Time.deltaTime * -0.01f : 0;
+                break;
+            case (_, < 25):
+                Happiness += Happiness >= -100 ? Time.deltaTime * -0.01f : 0;
+                break;
+            case ( > 75, > 75):
+                Happiness += Happiness <= 100 ? Time.deltaTime * 0.3f : 0;
+                break;
+            case ( > 75, _):
+                Happiness += Happiness <= 100 ? Time.deltaTime * 0.01f : 0;
+                break;
+            case (_, < 75):
+                Happiness += Happiness <= 100 ? Time.deltaTime * 0.01f : 0;
+                break;
+        }
     }
 
     public void RandomTurtle() {
@@ -70,7 +102,8 @@ public class Turtle: MonoBehaviour
         Zombified = Random.Range(0f, 1f) > 0.5;
         Educaton = Random.Range(0, 100);
         Hunger = 100f;
-        Thirst = 100f; 
+        Thirst = 100f;
+        Happiness = 0f;
     }
 
     public void TurtleFromParents(Turtle Frank, Turtle Derek)
@@ -90,25 +123,32 @@ public class Turtle: MonoBehaviour
         Educaton = Random.Range(Frank.Educaton, Derek.Educaton) + Random.Range(-25, 25);
         Hunger = 100f;
         Thirst = 100f;
+        Happiness = 25f;
     }
 
     public void TurtleThink()
     {
-        switch((Hunger, AtFood, Thirst, StickOut))
+        switch((Hunger, AtFood, Thirst, AtPond,  StickOut))
         {
-            case ( <= 10, _, _, _):
+            case ( <= 10, _, _, _, _):
                 GoToFood();
                 break;
-            case ( <= 100, true, _, _):
+            case ( <= 100, true, _, _, _):
                 Hunger += Time.deltaTime * 2.5f;
                 break;
-            case ( >= 100, true, _, _):
+            case ( >= 100, true, _, _, _):
                 AtFood = false;
                 break;
-            case (_, _, <= 20, _):
-                // go drink
+            case (_, _, <= 20, _, _):
+                GoToDrink();
                 break;
-            case (_, _, _, true):
+            case (_, _, <= 100, true, _):
+                Thirst += Time.deltaTime * 2.5f;
+                break;
+            case (_, _, >= 100, _, _):
+                AtPond = false;
+                break;
+            case (_, _, _, _, true):
                 // go to stick
                 break;
             default:
@@ -132,6 +172,27 @@ public class Turtle: MonoBehaviour
             }else
             {
                 AtFood = false;
+            }
+        }
+    }
+
+    public void GoToDrink()
+    {
+        if (!AtPond)
+        {
+            TurnToPosition(Pond.transform.position);
+            transform.position += transform.forward * Time.deltaTime * 0.5f;
+        }
+        else
+        {
+            if (Thirst <= 100f)
+            {
+                Thirst += Time.deltaTime * 2.5f;
+                Debug.Log(Hunger);
+            }
+            else
+            {
+                AtPond = false;
             }
         }
     }
@@ -160,7 +221,7 @@ public class Turtle: MonoBehaviour
             }
         } else
         {
-            Vector3 pos = new Vector3(Random.Range(0, 50), transform.position.y, Random.Range(0, 40));
+            Vector3 pos = new Vector3(Random.Range(-50, 50), transform.position.y, Random.Range(-50, 50));
             WanderPosition = pos;
         }
     }
@@ -170,6 +231,9 @@ public class Turtle: MonoBehaviour
         if (collision.gameObject.tag == "food")
         {
             AtFood = true;
+        } else if (collision.gameObject.tag == "pond")
+        {
+            AtPond = true;
         }
     }
 }

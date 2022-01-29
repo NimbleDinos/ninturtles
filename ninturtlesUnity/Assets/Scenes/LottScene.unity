@@ -365,6 +365,7 @@ MonoBehaviour:
   Zombified: 0
   Educaton: 0
   Hunger: 0
+  AtFood: 0
   Thirst: 0
   IsWandering: 0
   StickOut: 0
@@ -594,7 +595,7 @@ GameObject:
   - component: {fileID: 2110003690}
   m_Layer: 0
   m_Name: Food
-  m_TagString: Untagged
+  m_TagString: food
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

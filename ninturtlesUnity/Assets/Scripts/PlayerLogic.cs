@@ -12,10 +12,9 @@ public class PlayerLogic : MonoBehaviour
 
     public GameObject CheesePrefab;
 
-    public List<GameObject> Cheeses = new();
-
     public void Update()
     {
+        GlobalVariables.CheeseOut = GlobalVariables.Cheeses.Count > 0;
         if (Input.GetMouseButtonDown(0))
         {
             if (!HoldingItem)
@@ -55,14 +54,10 @@ public class PlayerLogic : MonoBehaviour
         {
             Debug.Log("Cheese time");
             GameObject cheese = Instantiate(CheesePrefab);
-            Cheeses.Add(cheese);
+            GlobalVariables.Cheeses.Add(cheese);
+            GlobalVariables.CheeseOut = true;
             cheese.transform.position = transform.position;
             cheese.GetComponent<Rigidbody>().AddForce(cam.transform.forward * Random.Range(0.5f, 2f), ForceMode.Impulse);
-
-            turtles.ForEach(turtle => { 
-                turtle.Cheeses = Cheeses;
-                turtle.CheeseOut = true;
-            }) ;
         }
     }
 }

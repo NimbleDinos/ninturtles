@@ -17,9 +17,8 @@ public class Turtle: MonoBehaviour
         }
     }
 
-    public bool CheeseOut;
     public bool LikesCheese;
-    public List<GameObject> Cheeses;
+    public bool AtCheese = false;
     public bool IsDumb;
     public Colour TurtleColour;
     public int Cannibalism;
@@ -48,6 +47,8 @@ public class Turtle: MonoBehaviour
     public Turtle P2;
 
     public Vector3? WanderPosition;
+    public float MovementSpeed = 1.5f;
+    public float TurnSpeed = 1.0f;
 
     public void Start()
     {
@@ -131,7 +132,7 @@ public class Turtle: MonoBehaviour
 
     public void TurtleThink()
     {
-        switch((Hunger, AtFood, Thirst, AtPond, CheeseOut, StickOut))
+        switch((Hunger, AtFood, Thirst, AtPond, GlobalVariables.CheeseOut, StickOut))
         {
             case ( <= 10, _, _, _, _, _):
                 GoToFood();
@@ -168,7 +169,7 @@ public class Turtle: MonoBehaviour
         if (!AtFood)
         {
             TurnToPosition(FoodBowl.transform.position);
-            transform.position += transform.forward * Time.deltaTime * 0.5f;
+            transform.position += transform.forward * Time.deltaTime * MovementSpeed;
         } else
         {
             if (Hunger <= 100f)
@@ -186,7 +187,7 @@ public class Turtle: MonoBehaviour
         if (!AtPond)
         {
             TurnToPosition(Pond.transform.position);
-            transform.position += transform.forward * Time.deltaTime * 0.5f;
+            transform.position += transform.forward * Time.deltaTime * MovementSpeed;
         }
         else
         {
@@ -205,7 +206,7 @@ public class Turtle: MonoBehaviour
     {
         Debug.Log("PLAYER TIME");
         TurnToPosition(Player.transform.position);
-        transform.position += transform.forward * Time.deltaTime * 0.5f;
+        transform.position += transform.forward * Time.deltaTime * MovementSpeed;
     }
 
     public void TurnToPosition(Vector3? AimPosition)
@@ -214,18 +215,27 @@ public class Turtle: MonoBehaviour
 
         LookPos.y = 0;
         var rotation = Quaternion.LookRotation(LookPos);
-        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 0.2f);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * TurnSpeed);
     }
 
     public void CheeseTime()
     {
+        Debug.Log("Turtle Cheese");
         if (LikesCheese)
         {
-            GameObject cheese = Cheeses[0];
-            TurnToPosition(cheese.transform.position);
-            transform.position += transform.forward * Time.deltaTime * 0.5f;
+            if (!AtCheese)
+            {
+                GameObject cheese = GlobalVariables.Cheeses[0];
+                TurnToPosition(cheese.transform.position);
+                transform.position += transform.forward * Time.deltaTime * MovementSpeed;
+            } else
+            {
+                Happiness += 10 * Time.deltaTime;
+                Hunger += 5 * Time.deltaTime;
+            }
         } else
         {
+            Happiness += -10 * Time.deltaTime;
             Wander();
         }
     }
@@ -240,7 +250,7 @@ public class Turtle: MonoBehaviour
                 WanderPosition = null;
             } else
             {
-                transform.position += transform.forward * Time.deltaTime * 0.5f;
+                transform.position += transform.forward * Time.deltaTime * MovementSpeed;
             }
         } else
         {
@@ -257,6 +267,17 @@ public class Turtle: MonoBehaviour
         } else if (collision.gameObject.tag == "pond")
         {
             AtPond = true;
+        } else if (collision.gameObject.tag == "cheese")
+        {
+            AtCheese = true;
+        }
+    }
+
+    public void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.tag == "cheese")
+        {
+            AtCheese = false;
         }
     }
 

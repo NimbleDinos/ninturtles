@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 215844928234467046}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 6.964464, y: 0, z: 7.70278}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4110761354513310712}
@@ -80,6 +80,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LikesCheese: 0
+  AtCheese: 0
   IsDumb: 0
   Cannibalism: 0
   Chonk: 0
@@ -100,6 +101,8 @@ MonoBehaviour:
   Player: {fileID: 0}
   P1: {fileID: 0}
   P2: {fileID: 0}
+  MovementSpeed: 1.5
+  TurnSpeed: 1
   textureHappy: {fileID: 2800000, guid: 135567b1526817445b94f3c97ee58dcd, type: 3}
   textureNeutral: {fileID: 2800000, guid: ac246cd31cbdf994abefeccabf5d9bf4, type: 3}
   textureLike: {fileID: 2800000, guid: d15c9842c5ece8a4e88f486c039ae82f, type: 3}

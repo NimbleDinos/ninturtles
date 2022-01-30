@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class Turtle: MonoBehaviour
 {
-    public class Colour {
+    public class TurtColour {
         public int R;
         public int G;
         public int B;
 
-        public Colour(int r, int g, int b)
+        public TurtColour(int r, int g, int b)
         {
             R = r;
             G = g;
@@ -17,10 +17,11 @@ public class Turtle: MonoBehaviour
         }
     }
 
+    public string Name;
     public bool LikesCheese;
     public bool AtCheese = false;
     public bool IsDumb;
-    public Colour TurtleColour;
+    public TurtColour TurtleColour;
     public int Cannibalism;
     public int Chonk;
     public bool StrawberryAddict;
@@ -41,6 +42,7 @@ public class Turtle: MonoBehaviour
     public GameObject FoodBowl;
     public GameObject Pond;
     public GameObject Player;
+    public GameObject NameText;
 
     public Turtle P1;
     public Turtle P2;
@@ -68,6 +70,8 @@ public class Turtle: MonoBehaviour
     public void Start()
     {
         if (P1 != null && P2 != null) TurtleFromParents(P1, P2); else RandomTurtle();
+        Name = GlobalVariables.TurtleNames[Random.Range(0, GlobalVariables.TurtleNames.Length)];
+        NameText.GetComponent<TextMesh>().text = Name;
 
         // allows texture changes
         rend = torso.GetComponent<Renderer>();
@@ -77,6 +81,13 @@ public class Turtle: MonoBehaviour
         Debug.Log(set);
         rend.material.color = set;
         rendFin.material.color = set;
+    }
+
+    public void Update()
+    {
+        NameText.transform.LookAt(Camera.main.transform.position);
+        NameText.transform.Rotate(0, 180, 0);
+        
     }
 
     public void FixedUpdate()
@@ -149,7 +160,7 @@ public class Turtle: MonoBehaviour
     public void RandomTurtle() {
         LikesCheese = Random.Range(0f, 1f) > 0.5;
         IsDumb = Random.Range(0f, 1f) > 0.5;
-        TurtleColour = new Colour(Random.Range(50, 200), Random.Range(50, 200), Random.Range(50, 200));
+        TurtleColour = new TurtColour(Random.Range(50, 200), Random.Range(50, 200), Random.Range(50, 200));
         Cannibalism =Random.Range(0, 100);
         Chonk = Random.Range(0, 100);
         StrawberryAddict = Random.Range(0f, 1f) > 0.5;
@@ -166,7 +177,7 @@ public class Turtle: MonoBehaviour
     {
         LikesCheese = Random.Range(0f, 1f) > 0.5 ? Frank.LikesCheese : Derek.LikesCheese;
         IsDumb = Random.Range(0f, 1f) > 0.5 ? Frank.LikesCheese : Derek.LikesCheese;
-        TurtleColour = new Colour(Random.Range(Frank.TurtleColour.R, Derek.TurtleColour.R) + Random.Range(-100, 100), 
+        TurtleColour = new TurtColour(Random.Range(Frank.TurtleColour.R, Derek.TurtleColour.R) + Random.Range(-100, 100), 
             Random.Range(Frank.TurtleColour.G, Derek.TurtleColour.G) + Random.Range(-100, 100), 
             Random.Range(Frank.TurtleColour.B, Derek.TurtleColour.B) + Random.Range(-100, 100)
         );

@@ -36,7 +36,6 @@ public class Turtle: MonoBehaviour
     public bool StickOut;
 
     public float Happiness;
-    public bool Breedable;
 
     public GameObject FoodBowl;
     public GameObject Pond;
@@ -47,15 +46,68 @@ public class Turtle: MonoBehaviour
 
     public Vector3? WanderPosition;
 
+    // Textures
+    public Texture textureHappy;
+    public Texture textureNeutral;
+    public Texture textureLike;
+    public Texture textureNotLike;
+    public Texture textureSad;
+
+    // rendering things
+    public GameObject torso;
+    public GameObject fins;
+    Renderer rend;
+    Renderer rendFin;
+
+    // variables needed to assign faces
+    public bool cheeseIsNear; // Lottie blease update when cheese is near, or not
+
     public void Start()
     {
         if (P1 != null && P2 != null) TurtleFromParents(P1, P2); else RandomTurtle();
+
+        // allows texture changes
+        rend = torso.GetComponent<Renderer>();
+        rendFin = fins.GetComponent<Renderer>();
+
+        Color set = new Color(TurtleColour.R / 255f, TurtleColour.G / 255f, TurtleColour.B / 255f);
+        Debug.Log(set);
+        rend.material.color = set;
+        rendFin.material.color = set;
     }
 
     public void FixedUpdate()
     {
         TurtleThink();
         DecreaseStats();
+
+        textureUpdate();
+    }
+
+    public void textureUpdate()
+    {
+
+        // kinda messy but if else statement to decide current face
+        if (cheeseIsNear && LikesCheese)
+        {
+            rend.material.mainTexture = textureLike;
+        }
+        else if (cheeseIsNear && !LikesCheese)
+        {
+            rend.material.mainTexture = textureNotLike;
+        }
+        else if (Happiness <= 1)
+        {
+            rend.material.mainTexture = textureSad;
+        }
+        else if (Happiness <= 2)
+        {
+            rend.material.mainTexture = textureNeutral;
+        }
+        else
+        {
+            rend.material.mainTexture = textureHappy;
+        }
     }
 
     public void DecreaseStats()
@@ -94,7 +146,7 @@ public class Turtle: MonoBehaviour
     public void RandomTurtle() {
         LikesCheese = Random.Range(0f, 1f) > 0.5;
         IsDumb = Random.Range(0f, 1f) > 0.5;
-        TurtleColour = new Colour(Random.Range(0, 255), Random.Range(0, 255), Random.Range(0, 255));
+        TurtleColour = new Colour(Random.Range(50, 200), Random.Range(50, 200), Random.Range(50, 200));
         Cannibalism =Random.Range(0, 100);
         Chonk = Random.Range(0, 100);
         StrawberryAddict = Random.Range(0f, 1f) > 0.5;

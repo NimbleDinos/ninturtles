@@ -87,7 +87,6 @@ public class Turtle: MonoBehaviour
     {
         NameText.transform.LookAt(Camera.main.transform.position);
         NameText.transform.Rotate(0, 180, 0);
-        
     }
 
     public void FixedUpdate()
@@ -96,6 +95,11 @@ public class Turtle: MonoBehaviour
         DecreaseStats();
 
         textureUpdate();
+
+        if (GlobalVariables.Cheeses.Count < 1)
+        {
+            cheeseIsNear = false;
+        }
     }
 
     public void textureUpdate()
@@ -110,11 +114,15 @@ public class Turtle: MonoBehaviour
         {
             rend.material.mainTexture = textureNotLike;
         }
-        else if (Happiness <= 1)
+        else if (StickOut)
+        {
+            rend.material.mainTexture = textureLike;
+        }
+        else if (Happiness <= 0)
         {
             rend.material.mainTexture = textureSad;
         }
-        else if (Happiness <= 2)
+        else if (Happiness <= 10)
         {
             rend.material.mainTexture = textureNeutral;
         }
@@ -126,8 +134,8 @@ public class Turtle: MonoBehaviour
 
     public void DecreaseStats()
     {
-        Hunger += Hunger >= 0 ? Time.deltaTime * -0.05f : 0;
-        Thirst += Thirst >= 0 ? Time.deltaTime * -0.05f : 0;
+        Hunger += Hunger >= 0 ? Time.deltaTime * -1.05f : 0;
+        Thirst += Thirst >= 0 ? Time.deltaTime * -2.05f : 0;
 
         CalculateHappiness();
     }
@@ -155,6 +163,8 @@ public class Turtle: MonoBehaviour
                 Happiness += Happiness <= 100 ? Time.deltaTime * 0.01f : 0;
                 break;
         }
+
+        Happiness += 0.01f;
     }
 
     public void RandomTurtle() {
@@ -201,7 +211,7 @@ public class Turtle: MonoBehaviour
                 GoToFood();
                 break;
             case ( <= 100, true, _, _, _, _):
-                Hunger += Time.deltaTime * 2.5f;
+                Hunger += Time.deltaTime * 10f;
                 break;
             case ( >= 100, true, _, _, _, _):
                 AtFood = false;
@@ -210,7 +220,7 @@ public class Turtle: MonoBehaviour
                 GoToDrink();
                 break;
             case (_, _, <= 100, true, _, _):
-                Thirst += Time.deltaTime * 2.5f;
+                Thirst +=  10f;
                 break;
             case (_, _, >= 100, _, _, _):
                 AtPond = false;
@@ -256,7 +266,7 @@ public class Turtle: MonoBehaviour
         {
             if (Thirst <= 100f)
             {
-                Thirst += Time.deltaTime * 2.5f;
+                Thirst += Time.deltaTime * 5f;
             }
             else
             {
@@ -283,6 +293,7 @@ public class Turtle: MonoBehaviour
 
     public void CheeseTime()
     {
+        cheeseIsNear = true;
         Debug.Log("Turtle Cheese");
         if (LikesCheese)
         {
@@ -295,10 +306,11 @@ public class Turtle: MonoBehaviour
             {
                 Happiness += 10 * Time.deltaTime;
                 Hunger += 5 * Time.deltaTime;
+                cheeseIsNear = false;
             }
         } else
         {
-            Happiness += -10 * Time.deltaTime;
+            Happiness += -1 * Time.deltaTime;
             Wander();
         }
     }

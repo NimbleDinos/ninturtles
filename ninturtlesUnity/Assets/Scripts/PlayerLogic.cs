@@ -32,7 +32,7 @@ public class PlayerLogic : MonoBehaviour
                         Stick.GetComponent<Rigidbody>().isKinematic = true;
                         Stick.transform.position = Destination.position;
                         Stick.transform.parent = Destination;
-                        Stick.transform.localRotation = Quaternion.Euler(90, 0, -90);
+                        Stick.transform.localRotation = Quaternion.Euler(90, 0, 10);
                         Debug.Log("STICK");
 
                         turtles.ForEach(turtle => turtle.SetStickOut(true));

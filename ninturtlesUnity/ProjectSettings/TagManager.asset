@@ -7,6 +7,8 @@ TagManager:
   - food
   - pond
   - stick
+  - cheese
+  - turtle
   layers:
   - Default
   - TransparentFX

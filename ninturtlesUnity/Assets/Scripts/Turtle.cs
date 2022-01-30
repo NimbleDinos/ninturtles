@@ -18,6 +18,7 @@ public class Turtle: MonoBehaviour
     }
 
     public bool LikesCheese;
+    public bool AtCheese = false;
     public bool IsDumb;
     public Colour TurtleColour;
     public int Cannibalism;
@@ -45,6 +46,8 @@ public class Turtle: MonoBehaviour
     public Turtle P2;
 
     public Vector3? WanderPosition;
+    public float MovementSpeed = 1.5f;
+    public float TurnSpeed = 1.0f;
 
     // Textures
     public Texture textureHappy;
@@ -181,27 +184,30 @@ public class Turtle: MonoBehaviour
 
     public void TurtleThink()
     {
-        switch((Hunger, AtFood, Thirst, AtPond, StickOut))
+        switch((Hunger, AtFood, Thirst, AtPond, GlobalVariables.CheeseOut, StickOut))
         {
-            case ( <= 10, _, _, _, _):
+            case ( <= 10, _, _, _, _, _):
                 GoToFood();
                 break;
-            case ( <= 100, true, _, _, _):
+            case ( <= 100, true, _, _, _, _):
                 Hunger += Time.deltaTime * 2.5f;
                 break;
-            case ( >= 100, true, _, _, _):
+            case ( >= 100, true, _, _, _, _):
                 AtFood = false;
                 break;
-            case (_, _, <= 20, _, _):
+            case (_, _, <= 20, _, _, _):
                 GoToDrink();
                 break;
-            case (_, _, <= 100, true, _):
+            case (_, _, <= 100, true, _, _):
                 Thirst += Time.deltaTime * 2.5f;
                 break;
-            case (_, _, >= 100, _, _):
+            case (_, _, >= 100, _, _, _):
                 AtPond = false;
                 break;
-            case (_, _, _, _, true):
+            case (_, _, _, _, true, _):
+                CheeseTime();
+                break;
+            case (_, _, _, _, _, true):
                 GoToPlayer();
                 break;
             default:
@@ -215,7 +221,7 @@ public class Turtle: MonoBehaviour
         if (!AtFood)
         {
             TurnToPosition(FoodBowl.transform.position);
-            transform.position += transform.forward * Time.deltaTime * 0.5f;
+            transform.position += transform.forward * Time.deltaTime * MovementSpeed;
         } else
         {
             if (Hunger <= 100f)
@@ -233,7 +239,7 @@ public class Turtle: MonoBehaviour
         if (!AtPond)
         {
             TurnToPosition(Pond.transform.position);
-            transform.position += transform.forward * Time.deltaTime * 0.5f;
+            transform.position += transform.forward * Time.deltaTime * MovementSpeed;
         }
         else
         {
@@ -252,7 +258,7 @@ public class Turtle: MonoBehaviour
     {
         Debug.Log("PLAYER TIME");
         TurnToPosition(Player.transform.position);
-        transform.position += transform.forward * Time.deltaTime * 0.5f;
+        transform.position += transform.forward * Time.deltaTime * MovementSpeed;
     }
 
     public void TurnToPosition(Vector3? AimPosition)
@@ -261,7 +267,29 @@ public class Turtle: MonoBehaviour
 
         LookPos.y = 0;
         var rotation = Quaternion.LookRotation(LookPos);
-        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 0.2f);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * TurnSpeed);
+    }
+
+    public void CheeseTime()
+    {
+        Debug.Log("Turtle Cheese");
+        if (LikesCheese)
+        {
+            if (!AtCheese)
+            {
+                GameObject cheese = GlobalVariables.Cheeses[0];
+                TurnToPosition(cheese.transform.position);
+                transform.position += transform.forward * Time.deltaTime * MovementSpeed;
+            } else
+            {
+                Happiness += 10 * Time.deltaTime;
+                Hunger += 5 * Time.deltaTime;
+            }
+        } else
+        {
+            Happiness += -10 * Time.deltaTime;
+            Wander();
+        }
     }
 
     public void Wander()
@@ -274,7 +302,7 @@ public class Turtle: MonoBehaviour
                 WanderPosition = null;
             } else
             {
-                transform.position += transform.forward * Time.deltaTime * 0.5f;
+                transform.position += transform.forward * Time.deltaTime * MovementSpeed;
             }
         } else
         {
@@ -291,6 +319,17 @@ public class Turtle: MonoBehaviour
         } else if (collision.gameObject.tag == "pond")
         {
             AtPond = true;
+        } else if (collision.gameObject.tag == "cheese")
+        {
+            AtCheese = true;
+        }
+    }
+
+    public void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.tag == "cheese")
+        {
+            AtCheese = false;
         }
     }
 
